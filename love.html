@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Love 3D</title>
+
+<style>
+body{
+margin:0;
+overflow:hidden;
+background:black;
+}
+
+#startBtn{
+position:absolute;
+top:20px;
+left:20px;
+padding:10px 20px;
+background:#ff1493;
+color:white;
+border:none;
+border-radius:10px;
+cursor:pointer;
+z-index:10;
+}
+#tapStart{
+ position:fixed;
+ top:50%;
+ left:50%;
+ transform:translate(-50%,-50%);
+ font-size:40px;
+ color:#ff69b4;
+ font-family:cursive;
+ display:none;
+ cursor:pointer;
+ animation: blink 1.2s infinite;
+}
+
+@keyframes blink{
+ 0%,100%{opacity:1;}
+ 50%{opacity:0.3;}
+}
+.flowers{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+pointer-events:none;
+}
+
+.flower{
+position:absolute;
+top:-20px;
+font-size:24px;
+animation:fall linear forwards;
+}
+
+@keyframes fall{
+to{
+transform:translateY(100vh) rotate(360deg);
+opacity:0;
+}
+}
+#loadingScreen{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:black;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    color:#ff69b4;
+    font-family:sans-serif;
+    z-index:9999;
+}
+
+.bar{
+    width:300px;
+    height:10px;
+    background:#222;
+    border-radius:10px;
+    overflow:hidden;
+    margin-top:20px;
+}
+
+#progress{
+    width:0%;
+    height:100%;
+    background:linear-gradient(90deg,#ff1493,#ff69b4);
+}
+</style>
+
+</head>
+<body>
+
+<audio id="bgMusic">
+<source src="mucsicmp3.mp3" type="audio/mp3">
+</audio>
+<button id="startBtn">Bật Nhạc 💕</button>
+
+<audio id="bgMusic" loop>
+<source src="mucsicmp3.mp3" type="audio/mp3">
+</audio>
+
+<div class="flowers"></div>
+<div id="loadingScreen">
+    <h1>Loading Love...</h1>
+    <div class="bar">
+        <div id="progress"></div>
+    </div>
+
+</div><div id="tapStart">Tap to Start 💕</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/FontLoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/geometries/TextGeometry.js"></script>
+
+<script>
+
+const scene = new THREE.Scene();
+
+const camera = new THREE.PerspectiveCamera(
+75,
+window.innerWidth/window.innerHeight,
+0.1,
+1000
+);
+
+camera.position.z = 30;
+
+const renderer = new THREE.WebGLRenderer({antialias:true});
+renderer.setSize(window.innerWidth,window.innerHeight);
+document.body.appendChild(renderer.domElement);
+
+const controls = new THREE.OrbitControls(camera,renderer.domElement);
+
+const light = new THREE.PointLight(0xff69b4,2);
+light.position.set(10,10,10);
+scene.add(light);
+
+let objects = [];
+
+const messages=[
+"I love you",
+"Love You",
+"Thanh Thuy",
+"Forever",
+"My Love",
+"Yeu Em",
+"Love"
+];
+
+const images=["anh1.jpg","anh2.jpg","anh3.jpg"];
+
+const textureLoader=new THREE.TextureLoader();
+
+let loadedTextures=[];
+images.forEach(img=>{
+loadedTextures.push(textureLoader.load(img));
+});
+
+const loader=new THREE.FontLoader();
+let loadedFont=null;
+
+loader.load('https://threejs.org/examples/fonts/optimer_bold.typeface.json',
+function(font){
+loadedFont=font;
+
+setInterval(createText,300);
+}
+);
+
+function createText(){
+
+if(!loadedFont) return;
+
+const textContent=
+messages[Math.floor(Math.random()*messages.length)];
+
+const geometry=new THREE.TextGeometry(textContent,{
+font:loadedFont,
+size:1.2,
+height:0.3
+});
+
+const pinkColors=[0xff1493,0xff69b4];
+
+const randomColor=
+pinkColors[Math.floor(Math.random()*pinkColors.length)];
+
+const material=new THREE.MeshPhongMaterial({
+color:randomColor,
+emissive:randomColor,
+emissiveIntensity:1.5
+});
+
+const text=new THREE.Mesh(geometry,material);
+
+text.position.x=(Math.random()-0.5)*40;
+text.position.y=25;
+text.position.z=(Math.random()-0.5)*40;
+
+text.userData.speed=0.08;
+
+scene.add(text);
+objects.push(text);
+
+}
+
+function createHeart(){
+
+const shape=new THREE.Shape();
+
+shape.moveTo(0,0);
+shape.bezierCurveTo(0,3,-3,3,-3,0);
+shape.bezierCurveTo(-3,-3,0,-4,0,-6);
+shape.bezierCurveTo(0,-4,3,-3,3,0);
+shape.bezierCurveTo(3,3,0,3,0,0);
+
+const geometry=new THREE.ExtrudeGeometry(shape,{
+depth:1,
+bevelEnabled:true,
+bevelSize:0.3
+});
+
+const material=new THREE.MeshPhongMaterial({
+color:0xff1493,
+emissive:0xff69b4,
+emissiveIntensity:1
+});
+
+const heart=new THREE.Mesh(geometry,material);
+
+heart.scale.set(0.3,0.3,0.3);
+
+heart.position.x=(Math.random()-0.5)*40;
+heart.position.y=25;
+heart.position.z=(Math.random()-0.5)*40;
+
+heart.userData.speed=0.08;
+
+scene.add(heart);
+objects.push(heart);
+
+}
+
+setInterval(createHeart,800);
+
+function createImage(){
+
+const randomTexture=
+loadedTextures[Math.floor(Math.random()*loadedTextures.length)];
+
+const geometry=new THREE.PlaneGeometry(6,6);
+
+const material=new THREE.MeshBasicMaterial({
+map:randomTexture,
+transparent:true,
+side:THREE.DoubleSide
+});
+
+const img=new THREE.Mesh(geometry,material);
+
+img.position.x=(Math.random()-0.5)*40;
+img.position.y=25;
+img.position.z=(Math.random()-0.5)*40;
+
+img.userData.speed=0.08;
+
+scene.add(img);
+objects.push(img);
+
+}
+
+setInterval(createImage,2500);
+
+function createFlower(){
+
+const flower=document.createElement("div");
+
+flower.className="flower";
+flower.innerHTML="🌷";
+
+flower.style.left=Math.random()*100+"vw";
+flower.style.animationDuration=3+Math.random()*5+"s";
+
+document.querySelector(".flowers").appendChild(flower);
+
+setTimeout(()=>{
+flower.remove();
+},8000);
+
+}
+
+setInterval(createFlower,600);
+
+function createStars(){
+
+const starGeometry=new THREE.BufferGeometry();
+
+const starCount=1000;
+const positions=[];
+
+for(let i=0;i<starCount;i++){
+
+positions.push(
+(Math.random()-0.5)*400,
+(Math.random()-0.5)*400,
+(Math.random()-0.5)*400
+);
+
+}
+
+starGeometry.setAttribute(
+'position',
+new THREE.Float32BufferAttribute(positions,3)
+);
+
+const textureLoader=new THREE.TextureLoader();
+
+const starTexture=textureLoader.load(
+"https://threejs.org/examples/textures/sprites/disc.png"
+);
+
+const starMaterial=new THREE.PointsMaterial({
+map:starTexture,
+size:2,
+transparent:true,
+depthWrite:false
+});
+
+const stars=new THREE.Points(starGeometry,starMaterial);
+
+scene.add(stars);
+
+}
+
+createStars();
+
+let load = 0;
+
+const loadingInterval = setInterval(()=>{
+
+ load += 1;
+
+ document.getElementById("progress").style.width = load + "%";
+
+ if(load >= 100){
+
+  clearInterval(loadingInterval);
+
+  document.getElementById("loadingScreen").style.display = "none";
+
+  document.getElementById("tapStart").style.display = "block";
+
+ }
+
+},30);
+function animate(){
+
+requestAnimationFrame(animate);
+
+for(let i=objects.length-1;i>=0;i--){
+
+let obj=objects[i];
+
+obj.position.y-=obj.userData.speed;
+
+if(obj.position.y<-25){
+
+scene.remove(obj);
+objects.splice(i,1);
+
+}
+
+}
+
+controls.update();
+renderer.render(scene,camera);
+
+}
+
+function startAnimation(){
+animate();
+}
+
+document.getElementById("tapStart").onclick = function(){
+
+document.getElementById("tapStart").style.display = "none";
+
+const music = document.getElementById("bgMusic");
+music.volume = 0.5;
+music.play();
+
+startAnimation();
+
+}
+
+</script>
+
+</body>
+</html>
